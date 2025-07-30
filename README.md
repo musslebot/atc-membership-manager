@@ -6,9 +6,9 @@ This plugin ensures compliance with the **Austin Tea Cooperative Bylaws**, which
 
 According to the Bylaws:
 
-- Only owners (members) in **good standing** may vote or access member privileges ([Bylaws §2.3](#)).
-- Member benefits such as **discounts** and **early access to events or space bookings** may be determined and granted by the Board ([Bylaws §2.4](#)).
-- Membership requires **ongoing participation** and may be terminated if a member is inactive or in violation of the Code of Conduct ([Bylaws §2.6–2.8](#)).
+- Only owners (members) in **good standing** may vote or access member privileges ([Bylaws §2.3](https://docs.google.com/viewerng/viewer?url=https://austinteacooperative.com/wp-content/uploads/2024/03/Bylaws-Final-Signed-1-8-24.pdf)).
+- Member benefits such as **discounts** and **early access to events or space bookings** may be determined and granted by the Board ([Bylaws §2.4](https://docs.google.com/viewerng/viewer?url=https://austinteacooperative.com/wp-content/uploads/2024/03/Bylaws-Final-Signed-1-8-24.pdf)).
+- Membership requires **ongoing participation** and may be terminated if a member is inactive or in violation of the Code of Conduct ([Bylaws §2.6–2.8](https://docs.google.com/viewerng/viewer?url=https://austinteacooperative.com/wp-content/uploads/2024/03/Bylaws-Final-Signed-1-8-24.pdf)).
 
 This plugin ensures these provisions are upheld on the cooperative’s website and WooCommerce-powered store.
 
