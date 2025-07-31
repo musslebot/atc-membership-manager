@@ -27,18 +27,3 @@ This plugin ensures these provisions are upheld on the cooperative’s website a
 
 1. Upload the plugin files to the `/wp-content/plugins/atc-membership-manager` directory.
 2. Activate the plugin through the 'Plugins' screen in WordPress.
-
----
-
-## Configuration
-
-You must define:
-
-- Membership roles (e.g., `atc_member`, `atc_inactive`, `atc_expelled`)
-- Product ID of the membership
-- Membership discount amount %
-- TBD:
-- Label used to differentiate what products a discount can apply to (e.g. tea is discounted vs teaware is not)
-- WooCommerce discount rules (e.g., for members only)
-- Participation tracking thresholds (e.g., based on logins, purchases, or check-ins)
-- Custom messages for restricted content or checkout behavior
