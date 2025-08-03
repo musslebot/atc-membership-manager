@@ -14,6 +14,7 @@ define('ATC_ROLE_ID', 'atc_member');
 define('ATC_ROLE_NAME', 'ATC Member');
 define('ATC_DISCOUNT_PERCENT', 10);
 define('ATC_MEMBERSHIP_PRODUCT_ID', 43); // Replace with real product ID
+define('ELIGIBLE_TAGS', ['atc-discounted']); // One of these tags must be applied to products for the discount to take effect
 
 
 function assign_atc_member_role_on_purchase($order_id) {
@@ -45,9 +46,11 @@ function apply_atc_member_discount_to_items($cart) {
 
     foreach ($cart->get_cart() as $cart_item_key => $cart_item) {
         $product = $cart_item['data'];
-        $original_price = $product->get_regular_price();
-        $discounted_price = $original_price * (1 - (ATC_DISCOUNT_PERCENT / 100));
-        $product->set_price($discounted_price);
+        if (has_term(ELIGIBLE_TAGS, 'product_tag', $product->get_id())) {
+            $original_price = $product->get_regular_price();
+            $discounted_price = $original_price * (1 - (ATC_DISCOUNT_PERCENT / 100));
+            $product->set_price($discounted_price);
+        }
     }
 }
 
