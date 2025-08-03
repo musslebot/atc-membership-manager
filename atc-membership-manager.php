@@ -68,8 +68,3 @@ function create_atc_member_role(){
 add_action('init', 'create_atc_member_role');
 add_action('woocommerce_order_status_completed', 'assign_atc_member_role_on_purchase');
 add_action('woocommerce_before_calculate_totals', 'apply_atc_member_discount_to_items', 10, 1);
-add_action('woocommerce_before_cart', function () {
-    if (current_user_can('atc_member')) {
-        echo '<p class="woocommerce-info">ATC Member Discount: 10% applied to all items.</p>';
-    }
-});
