@@ -10,56 +10,66 @@ Author: Michael "Musslebot" Musslewhite
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 error_log('[AMD]: ✅ ATC Membership Manager Plugin Loaded');
 
-// 1. Create the 'atc_member' role
-/* NOTE: ideally this would run once on activation, but I can't seem to get that
- * to work in bluehost's staging environment :shrug:
- */
-add_action('init', function () {
-    if (!get_role('atc_member')) {
-        add_role('atc_member', 'ATC Member', ['read' => true]);
-        error_log('[AMD]: ✅ Role created via init fallback');
-    }
-});
+define('ATC_ROLE_ID', 'atc_member');
+define('ATC_ROLE_NAME', 'ATC Member');
+define('ATC_DISCOUNT_PERCENT', 10);
+define('ATC_MEMBERSHIP_PRODUCT_ID', 43); // Replace with real product ID
 
-// 2. Assign 'atc_member' role when membership product is purchased
+
 function assign_atc_member_role_on_purchase($order_id) {
-    error_log("[AMD]: Checking order: $order" );
+// Assign 'atc_member' role when membership product is purchased.
     $order = wc_get_order($order_id);
-    error_log("[AMD]: getting user from order user: $order");
     $user_id = $order->get_user_id();
     if (!$user_id) return;
-    error_log("[AMD]: ✅ UserID available for user: $user_id");
-    $membership_product_id = 43; // Replace with your actual membership product ID
 
     foreach ($order->get_items() as $item) {
-        error_log("[AMD]: Checking item: $item");
-        if ($item->get_product_id() == $membership_product_id) {
-            error_log("[AMD]: ✅ item is ATC membership product id: $membership_product_id");
+        if ($item->get_product_id() == ATC_MEMBERSHIP_PRODUCT_ID) {
             $user = new WP_User($user_id);
-            $user->add_role('atc_member');
-            error_log("[AMD]: ✅ ATC Member applied to user: $user_id");
+            $user->add_role(ATC_ROLE_ID);
             break;
         }
     }
 }
-add_action('woocommerce_order_status_completed', 'assign_atc_member_role_on_purchase');
 
-// 3. Apply 10% discount to 'atc_member' users
-function apply_atc_member_discount($cart) {
-    error_log('[AMD]: Checking user to apply discount for cart');
-    if (is_admin() || !is_user_logged_in()) return;
-    error_log('[AMD]: user is admin or logged in');
-
+function apply_atc_member_discount_to_items($cart) {
+    // Apply ATC Member discount to 'atc_member' users' eligible items
+    if (is_admin() && !defined('DOING_AJAX')) return;
+    if (!is_user_logged_in()) return;
 
     $user = wp_get_current_user();
-    error_log('[AMD]: ✅ current user is retrieved and has roles');
-    if (in_array('atc_member', $user->roles)) {
-        error_log('[AMD]: ✅ user is ATC Member!');
-        $discount = $cart->get_subtotal() * 0.10;
-        $cart->add_fee(__('ATC Member Discount', 'atc-membership-discount'), -$discount);
-        error_log("[AMD]: ✅ ATC Member discount ($discount) applied to cart");
+    //if (!in_array('atc_member', (array) $user->roles) && !is_admin()) return;
+    error_log("[AMD]:✅  is ATC Member or admin");
+
+    // Avoid running multiple times (important)
+    if (did_action('woocommerce_before_calculate_totals') >= 2) return;
+
+    foreach ($cart->get_cart() as $cart_item_key => $cart_item) {
+        $product = $cart_item['data'];
+        $original_price = $product->get_regular_price();
+        $discounted_price = $original_price * (1 - (ATC_DISCOUNT_PERCENT / 100));
+        $product->set_price($discounted_price);
     }
 }
-add_action('woocommerce_cart_calculate_fees', 'apply_atc_member_discount');
 
-//add_action('init', 'add_atc_member_role'); // TEMPORARY FOR TESTING -- THIS SHOULDN'T BE RUN ON EVERY PAGE LOAD
+
+function create_atc_member_role(){
+    // Create the 'atc_member' role
+    /* NOTE: ideally this would run once on activation, but I can't seem to get that
+    * to work in bluehost's staging environment :shrug: 
+    * Will try to make this an "on activation" hook in production later.
+    */
+    if (!get_role(ATC_ROLE_ID)) {
+        add_role(ATC_ROLE_ID, ATC_ROLE_NAME, ['read' => true]);
+        error_log("[AMD]: ✅ ATC_ROLE_ID, ATC_ROLE_NAME created");
+    }
+}
+
+
+add_action('init', 'create_atc_member_role');
+add_action('woocommerce_order_status_completed', 'assign_atc_member_role_on_purchase');
+add_action('woocommerce_before_calculate_totals', 'apply_atc_member_discount_to_items', 10, 1);
+add_action('woocommerce_before_cart', function () {
+    if (current_user_can('atc_member')) {
+        echo '<p class="woocommerce-info">ATC Member Discount: 10% applied to all items.</p>';
+    }
+});
