@@ -94,7 +94,7 @@ function apply_atc_member_discount_to_items($cart) {
     if (!is_user_logged_in()) return;
 
     $user = wp_get_current_user();
-    //if (!in_array('atc_member', (array) $user->roles) && !is_admin()) return;
+    if (!in_array('atc_member', (array) $user->roles) && !is_admin()) return;
 
     // Avoid running multiple times (important)
     if (did_action('woocommerce_before_calculate_totals') >= 2) return;
@@ -122,8 +122,8 @@ function create_atc_member_role(){
 }
 
 
-add_action('init', 'create_atc_member_role');
-add_action('init', 'create_atc_membership_tag');
-add_action('init', 'create_atc_discount_tag');
+add_action('init', 'create_atc_member_role');  // This should be on plugin activation instead of `init`
+add_action('init', 'create_atc_membership_tag');  // This should be on plugin activation instead of `init`
+add_action('init', 'create_atc_discount_tag');  // This should be on plugin activation instead of `init`
 add_action('woocommerce_order_status_completed', 'handle_membership_purchase');
 add_action('woocommerce_before_calculate_totals', 'apply_atc_member_discount_to_items', 10, 1);
