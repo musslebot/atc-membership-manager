@@ -1,14 +1,18 @@
 <?php
 /*
 Plugin Name: ATC Membership Manager
-Description: Assigns an ATC Member role when a membership product is purchased and gives a 10% discount to 
-             ATC Members on all subsequent purchases.
+Description: This plugin ensures compliance with the Austin Tea Cooperative Bylaws, which require active membership for access to voting rights, store discounts, and participation in events and governance. It automates the management of user permissions based on membership state and enforces restrictions on non-members.
+    According to the Bylaws:
+    * Only owners (members) in good standing may vote or access member privileges (Bylaws §2.3).
+    * Member benefits such as discounts and early access to events or space bookings may be determined and granted by the Board (Bylaws §2.4).
+    * Membership requires ongoing participation and may be terminated if a member is inactive or in violation of the Code of Conduct (Bylaws §2.6–2.8).
+
+    This plugin ensures these provisions are upheld on the cooperative’s website and WooCommerce-powered store.
 Version: 1.0
 Author: Michael "Musslebot" Musslewhite
 */
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
-error_log('[AMD]: ✅ ATC Membership Manager Plugin Loaded');
 
 // Role variables
 define('ATC_ROLE_ID', 'atc_member');
@@ -35,12 +39,12 @@ function create_atc_membership_tag() {
         ]);
 
         if (!is_wp_error($result)) {
-            error_log("[AMD]: ✅ Created product tag '$ATC_TAG_MEMBERSHIP_NAME'");
+            error_log("[AMD]: ✅ Created product tag 'ATC_TAG_MEMBERSHIP_NAME'");
         } else {
-            error_log("[AMD]: ❌ Failed to create product tag '$ATC_TAG_MEMBERSHIP_NAME': " . $result->get_error_message());
+            error_log("[AMD]: ❌ Failed to create product tag 'ATC_TAG_MEMBERSHIP_NAME': " . $result->get_error_message());
         }
     } else {
-        error_log("[AMD]: ℹ️ Product tag '$ATC_TAG_MEMBERSHIP_NAME' already exists");
+        error_log("[AMD]: ℹ️ Product tag 'ATC_TAG_MEMBERSHIP_NAME' already exists");
     }
 }
 
@@ -54,12 +58,12 @@ function create_atc_discount_tag() {
         ]);
 
         if (!is_wp_error($result)) {
-            error_log("[AMD]: ✅ Created product tag '$ATC_TAG_DISCOUNT_NAME'");
+            error_log("[AMD]: ✅ Created product tag 'ATC_TAG_DISCOUNT_NAME'");
         } else {
-            error_log("[AMD]: ❌ Failed to create product tag '$ATC_TAG_DISCOUNT_NAME': " . $result->get_error_message());
+            error_log("[AMD]: ❌ Failed to create product tag 'ATC_TAG_DISCOUNT_NAME': " . $result->get_error_message());
         }
     } else {
-        error_log("[AMD]: ℹ️ Product tag '$ATC_TAG_DISCOUNT_NAME' already exists");
+        error_log("[AMD]: ℹ️ Product tag 'ATC_TAG_DISCOUNT_NAME' already exists");
     }
 
 }
@@ -72,7 +76,7 @@ function handle_membership_purchase($order_id) {
 
     foreach ($order->get_items() as $item) {
         $product = $item->get_product();
-        if (has_term(ATC_MEMBERSHIP_TAG_SLUG, 'product_tag', $product->get_id())) {
+        if (has_term(ATC_TAG_MEMBERSHIP_SLUG, 'product_tag', $product->get_id())) {
             // Grant ATC Member role
             $user = get_user_by('id', $user_id);
             if ($user && !in_array(ATC_ROLE_ID, $user->roles)) {
@@ -114,7 +118,6 @@ function create_atc_member_role(){
     */
     if (!get_role(ATC_ROLE_ID)) {
         add_role(ATC_ROLE_ID, ATC_ROLE_NAME, ['read' => true]);
-        error_log("[AMD]: ✅ ATC_ROLE_ID, ATC_ROLE_NAME created");
     }
 }
 
