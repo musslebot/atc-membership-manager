@@ -33,6 +33,26 @@ define('ATC_TAG_DISCOUNT_NAME', 'ATC Discount');
 define('ATC_TAG_DISCOUNT_DESCRIPTION', 'This tag applies to products that should be given a discount as part of being an ATC Member. Any product containing this tag will have a discount applied to it, as defined by the ATC Membership Manager plugin.');
 
 
+function initialize_atc_plugin_activate() {
+    // This is the plugin initialization function, that should be run once when the plugin activates.
+    create_atc_member_role();
+    create_atc_membership_tag();
+    create_atc_discount_tag();
+}
+
+
+function create_atc_member_role(){
+    // Create the 'atc_member' role
+    /* NOTE: ideally this would run once on activation, but I can't seem to get that
+    * to work in bluehost's staging environment :shrug: 
+    * Will try to make this an "on activation" hook in production later.
+    */
+    if (!get_role(ATC_ROLE_ID)) {
+        add_role(ATC_ROLE_ID, ATC_ROLE_NAME, ['read' => true]);
+    }
+}
+
+
 function create_atc_membership_tag() {
     // Create membership tag if not exist
     if (!term_exists(ATC_TAG_MEMBERSHIP_SLUG, 'product_tag')) {
@@ -112,20 +132,6 @@ function apply_atc_member_discount_to_items($cart) {
 }
 
 
-function create_atc_member_role(){
-    // Create the 'atc_member' role
-    /* NOTE: ideally this would run once on activation, but I can't seem to get that
-    * to work in bluehost's staging environment :shrug: 
-    * Will try to make this an "on activation" hook in production later.
-    */
-    if (!get_role(ATC_ROLE_ID)) {
-        add_role(ATC_ROLE_ID, ATC_ROLE_NAME, ['read' => true]);
-    }
-}
-
-
-add_action('init', 'create_atc_member_role');  // TODO: This should be on plugin activation instead of `init`
-add_action('init', 'create_atc_membership_tag');  // TODO: This should be on plugin activation instead of `init`
-add_action('init', 'create_atc_discount_tag');  // TODO: This should be on plugin activation instead of `init`
+register_activation_hook(__FILE__, 'initialize_atc_plugin_activate');
 add_action('woocommerce_order_status_completed', 'handle_membership_purchase');
 add_action('woocommerce_before_calculate_totals', 'apply_atc_member_discount_to_items', 10, 1);
